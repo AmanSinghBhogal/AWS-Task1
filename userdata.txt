@@ -1,0 +1,17 @@
+#!/bin/bash
+
+sudo yum update
+sudo usermod -a -G docker ec2-user
+sudo service docker start
+systemctl enable docker
+sudo chmod 666 /var/run/docker.sock
+aws logs create-log-group --log-group-name my-api-logs
+
+
+sudo systemctl start express-api.service
+sudo docker run \
+    --log-driver=awslogs \
+    --log-opt awslogs-region=ap-south-1 \
+    --log-opt awslogs-group=my-api-logs \
+    --log-opt awslogs-stream=my-stream \
+    -p 80:80 -d amanbhogal22/express-api:latest
